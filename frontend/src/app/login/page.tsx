@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useHRMS } from "@/context/hrms-context";
 import { ApiError } from "@/lib/api/client";
-import { Lock, Mail, Eye, EyeOff, Sun, Moon, Copy, ArrowLeft, ShieldCheck } from "lucide-react";
+import { Lock, Mail, Eye, EyeOff, Sun, Moon, Copy, X, KeyRound, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -87,7 +87,7 @@ export default function LoginPage() {
           {isDark ? <Sun size={17} /> : <Moon size={17} />}
         </button>
 
-        <div className="w-full max-w-sm">
+        <div className={cn("relative w-full max-w-md rounded-2xl border p-8 sm:p-10 shadow-xl", isDark ? "bg-slate-900 border-slate-800 shadow-black/30" : "bg-white border-slate-200 shadow-slate-200/70")}>
           <div className="flex items-center gap-3 mb-8 lg:hidden">
             <img src="/graapes-logo.png" alt="Graapes" className="w-10 h-10 object-contain rounded-lg" />
             <p className="font-semibold">Graapes HRMS</p>
@@ -122,37 +122,43 @@ export default function LoginPage() {
             </>
           ) : (
             <>
-              <button type="button" onClick={() => setView("signin")} className={cn("inline-flex items-center gap-1.5 text-sm font-medium mb-6 hover:underline", isDark ? "text-slate-300" : "text-slate-600")}>
-                <ArrowLeft size={15} /> Back to sign in
+              <button type="button" onClick={() => setView("signin")} aria-label="Close" title="Close"
+                className={cn("absolute top-4 right-4 rounded-full p-2 transition", isDark ? "text-slate-400 hover:bg-slate-800 hover:text-white" : "text-slate-400 hover:bg-slate-100 hover:text-slate-700")}>
+                <X size={18} />
               </button>
-              <h1 className="text-2xl font-semibold">Reset your password</h1>
+              <div className={cn("flex h-11 w-11 items-center justify-center rounded-xl", isDark ? "bg-blue-500/15 text-blue-400" : "bg-blue-50 text-blue-700")}><KeyRound size={21} /></div>
+              <h1 className="mt-5 text-2xl font-semibold">Reset your password</h1>
               <p className={cn("mt-1.5 text-sm leading-relaxed", isDark ? "text-slate-400" : "text-slate-600")}>
                 For security, passwords are reset by your Super Admin. Send a request and you will receive a temporary password, which you must change at your next sign-in.
               </p>
 
-              <ol className={cn("mt-6 space-y-3 text-sm", isDark ? "text-slate-300" : "text-slate-700")}>
-                {["Send the request to the Super Admin by email.", "Receive a temporary password from them.", "Sign in and set a new password of your own."].map((s, i) => (
-                  <li key={s} className="flex gap-3">
-                    <span className={cn("flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-semibold", isDark ? "border-slate-600" : "border-slate-300 bg-white")}>{i + 1}</span>
-                    <span className="pt-0.5">{s}</span>
+              <ol className="mt-7">
+                {["Send the request to the Super Admin by email.", "Receive a temporary password from them.", "Sign in and set a new password of your own."].map((t, i, arr) => (
+                  <li key={t} className="relative flex gap-3 pb-5 last:pb-0">
+                    {i < arr.length - 1 && <span className={cn("absolute left-[11px] top-7 bottom-0 w-px", isDark ? "bg-slate-700" : "bg-slate-200")} />}
+                    <span className="relative flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-700 text-xs font-semibold text-white">{i + 1}</span>
+                    <span className={cn("pt-0.5 text-sm", isDark ? "text-slate-300" : "text-slate-700")}>{t}</span>
                   </li>
                 ))}
               </ol>
 
-              <div className={cn("mt-6 flex items-center justify-between gap-3 rounded-lg border px-3.5 py-2.5", isDark ? "border-slate-700 bg-slate-900" : "border-slate-200 bg-white")}>
-                <div className="min-w-0">
-                  <p className="text-[11px] uppercase tracking-wide text-slate-500">Super Admin</p>
-                  <p className="truncate text-sm font-medium">{SUPER_ADMIN_EMAIL}</p>
+              <div className={cn("mt-6 flex items-center justify-between gap-3 rounded-xl border px-4 py-3", isDark ? "border-slate-700 bg-slate-800/60" : "border-slate-200 bg-slate-50")}>
+                <div className="flex min-w-0 items-center gap-3">
+                  <Mail size={18} className="shrink-0 text-slate-400" />
+                  <div className="min-w-0">
+                    <p className="text-[11px] uppercase tracking-wide text-slate-500">Super Admin</p>
+                    <p className="truncate text-sm font-medium">{SUPER_ADMIN_EMAIL}</p>
+                  </div>
                 </div>
-                <button type="button" onClick={copyAdminEmail} aria-label="Copy email address" className={cn("shrink-0 rounded-md border p-2 transition", isDark ? "border-slate-700 hover:bg-slate-800" : "border-slate-200 hover:bg-slate-50")}><Copy size={15} /></button>
+                <button type="button" onClick={copyAdminEmail} aria-label="Copy email address" title="Copy" className={cn("shrink-0 rounded-lg border p-2 transition", isDark ? "border-slate-600 hover:bg-slate-700" : "border-slate-200 bg-white hover:bg-slate-100")}><Copy size={15} /></button>
               </div>
 
               <a href={mailHref} className={cn(primary, "mt-5")}><Mail size={16} /> Send request by email</a>
-              <p className="mt-3 text-xs text-slate-500">This opens your email application with the message already written.</p>
+              <p className="mt-3 text-center text-xs text-slate-500">Opens your email application with the message already written.</p>
             </>
           )}
 
-          <p className="mt-10 flex items-center gap-2 text-xs text-slate-500"><ShieldCheck size={14} /> Access is monitored. Authorised users only.</p>
+          <p className="mt-8 flex items-center justify-center gap-2 text-xs text-slate-500"><ShieldCheck size={14} /> Access is monitored. Authorised users only.</p>
         </div>
       </section>
     </main>
