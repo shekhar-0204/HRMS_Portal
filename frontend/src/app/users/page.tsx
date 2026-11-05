@@ -4,16 +4,7 @@ import React, { useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/app-shell";
 import { useHRMS } from "@/context/hrms-context";
 import { UserRole } from "@/types";
-import {
-  UserCheck,
-  Shield,
-  Key,
-  Mail,
-  UserX,
-  CheckCircle,
-  AlertTriangle,
-  Lock,
-} from "lucide-react";
+import { UserCheck, Shield, Key, Mail, UserX, CheckCircle, Lock, Info } from "lucide-react";
 import { toast } from "sonner";
 import { adminApi, type AdminUser } from "@/lib/api/hrms-api";
 
@@ -54,11 +45,12 @@ export default function UsersPage() {
           </div>
         </div>
 
-        {/* Warning banner */}
-        <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
-          <AlertTriangle size={18} className="text-amber-600 flex-shrink-0 mt-0.5" />
-          <div className="text-xs text-amber-900 leading-relaxed">
-            <span className="font-bold">Security Note:</span> All user roles and account status changes are saved through the HRMS backend API and enforced server-side.
+        {/* Info banner */}
+        <div className="p-3.5 bg-sky-50 border border-sky-200 rounded-xl flex items-start gap-3">
+          <Info size={18} className="text-sky-600 flex-shrink-0 mt-0.5" />
+          <div className="text-xs text-sky-900 leading-relaxed">
+            <span className="font-bold">How this works:</span> Resetting a password shows a temporary password only once, so copy it and share it with the employee securely.
+            They will be asked to set a new password at first sign-in. Role and status changes take effect immediately.
           </div>
         </div>
 
