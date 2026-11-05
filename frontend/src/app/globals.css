@@ -1,0 +1,246 @@
+@import "tailwindcss";
+
+/* Tailwind v4: make dark: utilities follow the .dark class on <html> (default is OS media query) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+}
+
+.dark {
+  --background: #090d16;
+  --foreground: #f1f5f9;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Dark mode adjustments */
+.dark body {
+  background-color: #090d16;
+  color: #f1f5f9;
+}
+
+.dark .border-blue-100,
+.dark .border-blue-100\/60 {
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+/* Soft status pills in dark mode */
+.dark .bg-emerald-50 {
+  background-color: rgba(6, 78, 59, 0.3) !important;
+  color: #34d399 !important;
+}
+
+.dark .border-emerald-100 {
+  border-color: rgba(16, 185, 129, 0.25) !important;
+}
+
+.dark .bg-rose-50 {
+  background-color: rgba(136, 19, 55, 0.3) !important;
+  color: #fb7185 !important;
+}
+
+.dark .border-rose-100,
+.dark .border-rose-200 {
+  border-color: rgba(244, 63, 94, 0.25) !important;
+}
+
+.dark .bg-amber-50 {
+  background-color: rgba(120, 53, 15, 0.3) !important;
+  color: #fbbf24 !important;
+}
+
+.dark .border-amber-100 {
+  border-color: rgba(245, 158, 11, 0.25) !important;
+}
+
+.dark .bg-purple-50 {
+  background-color: rgba(88, 28, 135, 0.3) !important;
+  color: #c084fc !important;
+}
+
+/* Table rows and header in dark mode */
+.dark th {
+  background-color: #0f172a !important;
+  color: #94a3b8 !important;
+  border-color: #1e293b !important;
+}
+
+.dark td {
+  border-color: #1e293b !important;
+}
+
+/* Form inputs & modal containers */
+.dark input:not([type="checkbox"]):not([type="radio"]),
+.dark select,
+.dark textarea {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #64748b !important;
+}
+
+/* ============================================================
+   Global dark-mode remap for light-only Tailwind utilities.
+   Pages use hardcoded bg-white / slate-* classes, so we remap
+   them here once instead of editing every component.
+   ============================================================ */
+.dark {
+  color-scheme: dark;
+}
+
+/* Surfaces */
+.dark .bg-white,
+.dark .hover\:bg-white:hover,
+.dark .focus\:bg-white:focus {
+  background-color: #111827;
+}
+.dark .bg-slate-50,
+.dark .bg-slate-50\/40,
+.dark .bg-slate-50\/50,
+.dark .bg-slate-50\/60,
+.dark .bg-slate-50\/70,
+.dark .bg-slate-50\/80 {
+  background-color: #0f172a;
+}
+.dark .bg-slate-100,
+.dark .bg-slate-100\/60,
+.dark .bg-slate-100\/80,
+.dark .bg-slate-100\/90,
+.dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-slate-50\/50:hover,
+.dark .hover\:bg-slate-50\/70:hover,
+.dark .hover\:bg-slate-50\/80:hover {
+  background-color: #1e293b;
+}
+.dark .bg-slate-200,
+.dark .hover\:bg-slate-100:hover,
+.dark .hover\:bg-slate-200\/70:hover {
+  background-color: #334155;
+}
+.dark .hover\:bg-slate-200:hover,
+.dark .bg-slate-300,
+.dark .hover\:bg-slate-300:hover {
+  background-color: #475569;
+}
+.dark .bg-slate-900,
+.dark .bg-slate-800 {
+  background-color: #334155;
+}
+.dark .hover\:bg-slate-800:hover {
+  background-color: #475569;
+}
+
+/* Text */
+.dark .text-slate-950,
+.dark .text-slate-900,
+.dark .text-slate-800,
+.dark .hover\:text-slate-950:hover,
+.dark .hover\:text-slate-900:hover,
+.dark .hover\:text-slate-800:hover {
+  color: #f1f5f9;
+}
+.dark .text-slate-700,
+.dark .hover\:text-slate-700:hover {
+  color: #e2e8f0;
+}
+.dark .text-slate-600,
+.dark .hover\:text-slate-600:hover,
+.dark .group:hover .group-hover\:text-slate-600 {
+  color: #cbd5e1;
+}
+.dark .text-slate-500 {
+  color: #94a3b8;
+}
+
+/* Borders & dividers */
+.dark .border-white,
+.dark .border-slate-50,
+.dark .border-slate-100,
+.dark .border-slate-100\/80,
+.dark .border-slate-100\/90,
+.dark .border-slate-200,
+.dark .border-slate-200\/60,
+.dark .border-slate-200\/70,
+.dark .border-slate-200\/80,
+.dark .border-slate-200\/90 {
+  border-color: #1e293b;
+}
+.dark .border-slate-300,
+.dark .border-slate-300\/80,
+.dark .hover\:border-slate-300:hover {
+  border-color: #334155;
+}
+.dark .divide-slate-100 > :not(:last-child),
+.dark .divide-slate-200 > :not(:last-child) {
+  border-color: #1e293b;
+}
+.dark .ring-white {
+  --tw-ring-color: #111827;
+}
+
+/* Soft coloured badges / tinted panels */
+.dark .bg-blue-50,
+.dark .bg-blue-100 {
+  background-color: rgba(59, 130, 246, 0.15);
+}
+.dark .text-blue-600,
+.dark .text-blue-700,
+.dark .text-blue-800 {
+  color: #60a5fa;
+}
+.dark .bg-emerald-100 { background-color: rgba(16, 185, 129, 0.18); }
+.dark .bg-rose-100    { background-color: rgba(244, 63, 94, 0.18); }
+.dark .bg-amber-100   { background-color: rgba(245, 158, 11, 0.18); }
+.dark .bg-purple-100  { background-color: rgba(168, 85, 247, 0.18); }
+.dark .bg-indigo-50,
+.dark .bg-indigo-100  { background-color: rgba(99, 102, 241, 0.18); }
+.dark .text-emerald-700, .dark .text-emerald-800 { color: #34d399; }
+.dark .text-rose-700,    .dark .text-rose-800    { color: #fb7185; }
+.dark .text-amber-700,   .dark .text-amber-800   { color: #fbbf24; }
+.dark .text-purple-700,  .dark .text-purple-800  { color: #c084fc; }
+.dark .text-indigo-700,  .dark .text-indigo-800  { color: #a5b4fc; }
+
+/* Native date/time pickers etc. */
+.dark ::-webkit-calendar-picker-indicator {
+  filter: invert(0.8);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}

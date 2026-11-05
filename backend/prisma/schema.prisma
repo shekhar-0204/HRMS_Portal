@@ -1,0 +1,304 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  super_admin
+  hr_admin
+  department_manager
+  employee
+}
+
+// ---------- Identity & access ----------
+
+model User {
+  id            String          @id @default(uuid())
+  email         String          @unique
+  passwordHash  String
+  role          UserRole
+  isActive      Boolean         @default(true)
+  mustChangePassword Boolean      @default(false)
+  lastLoginAt   DateTime?
+  employeeId    String?         @unique
+  employee      Employee?       @relation(fields: [employeeId], references: [id])
+  sessions      Session[]
+  notifications Notification[]
+  preferences   UserPreference?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+// ---------- Organization ----------
+
+model Department {
+  id             String        @id @default(uuid())
+  name           String        @unique
+  code           String        @unique
+  description    String        @default("")
+  headEmployeeId String?
+  employees      Employee[]
+  designations   Designation[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model Designation {
+  id           String     @id @default(uuid())
+  title        String
+  level        String
+  description  String?
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id])
+  employees    Employee[]
+  createdAt    DateTime   @default(now())
+
+  @@unique([departmentId, title])
+}
+
+model Employee {
+  id                 String      @id @default(uuid())
+  employeeCode       String      @unique // GRP-001
+  fullName           String
+  workEmail          String      @unique
+  personalEmail      String?
+  phone              String
+  gender             String      // Male | Female | Other
+  dateOfBirth        DateTime?   @db.Date
+  joiningDate        DateTime    @db.Date
+  employmentType     String      // Full-Time | Part-Time | Intern | Contract
+  status             String      @default("Active") // Active | Probation | Notice Period | Inactive
+  probationEndDate   DateTime?   @db.Date
+  departmentId       String
+  department         Department  @relation(fields: [departmentId], references: [id])
+  designationId      String
+  designation        Designation @relation(fields: [designationId], references: [id])
+  reportingManagerId String?
+  reportingManager   Employee?   @relation("ManagerReports", fields: [reportingManagerId], references: [id])
+  directReports      Employee[]  @relation("ManagerReports")
+  workLocation       String
+  emergencyName      String      @default("")
+  emergencyRelation  String      @default("")
+  emergencyPhone     String      @default("")
+  address            String      @default("")
+  avatarUrl          String?
+  resignationDate    DateTime?   @db.Date
+  lastWorkingDay     DateTime?   @db.Date
+  exitStatus         String?
+
+  user               User?
+  attendance         AttendanceRecord[]
+  corrections        AttendanceCorrection[]
+  leaveBalances      LeaveBalance[]
+  leaveRequests      LeaveRequest[]
+  documents          EmployeeDocument[]
+
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  @@index([departmentId])
+  @@index([status])
+}
+
+// ---------- Attendance ----------
+
+model AttendanceRecord {
+  id                  String    @id @default(uuid())
+  employeeId          String
+  employee            Employee  @relation(fields: [employeeId], references: [id])
+  date                DateTime  @db.Date
+  checkIn             DateTime?
+  checkOut            DateTime?
+  workDurationMinutes Int?
+  status              String    // Present | Absent | Half-Day | Late | Holiday | Leave | Weekend
+  source              String    @default("Web Check-in")
+  notes               String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@unique([employeeId, date])
+  @@index([date])
+}
+
+model AttendanceCorrection {
+  id                String    @id @default(uuid())
+  employeeId        String
+  employee          Employee  @relation(fields: [employeeId], references: [id])
+  date              DateTime  @db.Date
+  originalCheckIn   DateTime?
+  originalCheckOut  DateTime?
+  requestedCheckIn  DateTime
+  requestedCheckOut DateTime
+  reason            String
+  status            String    @default("Pending") // Pending | Approved | Rejected
+  reviewedById      String?
+  reviewedAt        DateTime?
+  reviewerComments  String?
+  requestedAt       DateTime  @default(now())
+
+  @@index([employeeId])
+  @@index([status])
+}
+
+// ---------- Leave ----------
+
+model LeaveType {
+  id                     String         @id @default(uuid())
+  code                   String         @unique // CL | SL | PL | COMP | UNPAID
+  name                   String
+  description            String         @default("")
+  defaultAnnualQuota     Decimal        @db.Decimal(5, 1)
+  requiresProofAfterDays Int?
+  color                  String         @default("#6366f1")
+  balances               LeaveBalance[]
+  requests               LeaveRequest[]
+}
+
+model LeaveBalance {
+  id          String    @id @default(uuid())
+  employeeId  String
+  employee    Employee  @relation(fields: [employeeId], references: [id])
+  leaveTypeId String
+  leaveType   LeaveType @relation(fields: [leaveTypeId], references: [id])
+  year        Int
+  totalQuota  Decimal   @db.Decimal(5, 1)
+  consumed    Decimal   @default(0) @db.Decimal(5, 1)
+  pending     Decimal   @default(0) @db.Decimal(5, 1)
+
+  @@unique([employeeId, leaveTypeId, year])
+}
+
+model LeaveRequest {
+  id            String                @id @default(uuid())
+  employeeId    String
+  employee      Employee              @relation(fields: [employeeId], references: [id])
+  leaveTypeId   String
+  leaveType     LeaveType             @relation(fields: [leaveTypeId], references: [id])
+  startDate     DateTime              @db.Date
+  endDate       DateTime              @db.Date
+  durationDays  Decimal               @db.Decimal(5, 1)
+  isHalfDay     Boolean               @default(false)
+  reason        String
+  status        String                @default("Pending") // Pending | Approved | Rejected | Cancelled
+  approverId    String?
+  decisionNotes String?
+  decisionDate  DateTime?
+  history       LeaveRequestHistory[]
+  createdAt     DateTime              @default(now())
+
+  @@index([employeeId])
+  @@index([status])
+}
+
+model LeaveRequestHistory {
+  id        String       @id @default(uuid())
+  requestId String
+  request   LeaveRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  actorName String
+  action    String
+  comment   String?
+  createdAt DateTime     @default(now())
+}
+
+// ---------- Calendar, documents, communication ----------
+
+model Holiday {
+  id         String   @id @default(uuid())
+  name       String
+  date       DateTime @db.Date
+  type       String   // National Holiday | Restricted Holiday | Company Festival
+  isOptional Boolean  @default(false)
+
+  @@unique([date, name])
+}
+
+model EmployeeDocument {
+  id           String   @id @default(uuid())
+  employeeId   String
+  employee     Employee @relation(fields: [employeeId], references: [id])
+  title        String
+  category     String
+  fileName     String
+  storageKey   String   // server-side key; never exposed to client
+  mimeType     String
+  sizeBytes    Int
+  uploadedById String
+  verified     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  @@index([employeeId])
+}
+
+model Announcement {
+  id                 String    @id @default(uuid())
+  title              String
+  content            String
+  category           String
+  priority           String
+  targetAudience     String
+  targetDepartmentId String?
+  authorId           String
+  authorName         String
+  publishedAt        DateTime  @default(now())
+  expiresAt          DateTime?
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  recipientId String
+  recipient   User     @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+  title       String
+  message     String
+  category    String
+  link        String?
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([recipientId, read])
+}
+
+// ---------- Administration ----------
+
+model AuditLog {
+  id             String   @id @default(uuid())
+  createdAt      DateTime @default(now())
+  actorUserId    String?
+  actorName      String
+  actorRole      String
+  action         String
+  targetModule   String
+  targetRecordId String?
+  description    String
+  ipAddress      String
+  outcome        String   // Success | Failed | Warning
+
+  @@index([createdAt])
+  @@index([targetModule])
+}
+
+model UserPreference {
+  userId             String  @id
+  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  timezone           String  @default("Asia/Kolkata")
+  dateFormat         String  @default("DD/MM/YYYY")
+  emailNotifications Boolean @default(true)
+  inAppNotifications Boolean @default(true)
+}
